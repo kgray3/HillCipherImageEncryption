@@ -47,6 +47,13 @@ public class Main {
     public static BufferedImage hillCipher(BufferedImage img) {
         int numRows = img.getHeight(); //image pixel height (rows)
         int numCols = img.getWidth(); //image pixel width (columns)
+        
+
+        while (numCols % 8 != 0) {
+            numCols++;
+        }
+
+        BufferedImage newImage = new BufferedImage(numCols, numRows, BufferedImage.TYPE_INT_RGB);
 
         //arbitrarily set involutory key matrix (found online)
         int[][] keyMatrix = {{128,12,45,34,51,156,137,58}, 
@@ -71,12 +78,19 @@ public class Main {
             int[][] greenArr = new int[8][1];
 
             //fill vectors with corresponding pixel colors
-            for (int c = 0; c < 8; c++) {;
-                Color currentColor = new Color(img.getRGB(col, row), true);
-                redArr[c][0] = currentColor.getRed();
-                blueArr[c][0] = currentColor.getBlue();
-                greenArr[c][0] = currentColor.getGreen();
+            for (int c = 0; c < 8; c++) {
+                if(col >= img.getWidth()) {
+                    redArr[c][0] = 0;
+                    blueArr[c][0] = 0;
+                    greenArr[c][0] = 0;
+                } else {
+                    Color currentColor = new Color(img.getRGB(col, row), true);
+                    redArr[c][0] = currentColor.getRed();
+                    blueArr[c][0] = currentColor.getBlue();
+                    greenArr[c][0] = currentColor.getGreen();
 
+                    
+                }
                 col++;
             }
 
@@ -90,18 +104,19 @@ public class Main {
             //Change color of corresponding matrix in original image to new colors from matrix multiplication
             for(int y = col - 8; y < col; y++) {
                 Color newColor = new Color(newRedArr[colorArrRow][0], newGreenArr[colorArrRow][0], newBlueArr[colorArrRow][0]);
-                img.setRGB(y, row, newColor.getRGB());
+                newImage.setRGB(y, row, newColor.getRGB());
                 colorArrRow++;
+                
             }
 
             //reset column # for new row
-            if (col == numCols) {
+            if (col >= img.getWidth()) {
                 col = 0;
                 row++;
             }
 
         }
-        return img;
+        return newImage;
     }
 
     /* Method to encrypt an image. Calls on Hill Cipher for math.
